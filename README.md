@@ -5,6 +5,8 @@ Learning to bluff with regret minimization.
 I'm implementing from scratch the algorithms used to find Nash equilibria in
 imperfect information games. Started with rock-paper-scissors, now Kuhn poker.
 
+![convergence](figures/convergence.png)
+
 ## What's in there
 
 - **Rock-paper-scissors + regret matching**: the agent exploits a fixed opponent,
@@ -18,6 +20,7 @@ agents/     regret_matching.py (RegretMatcher, FixedAgent, InfoSetNode)
 training/   rps_training.py, cfr_training.py
 tests/      pytest tests (game rules + convergence)
 figures/    plots
+plot_convergence.py   makes figures/convergence.png
 ```
 
 ## Setup
@@ -42,6 +45,12 @@ strategy for each infoset:
 
 ```bash
 python -m pytest tests/test_chance_sampling_cfr.py -s
+```
+
+## Plot
+
+```bash
+python plot_convergence.py
 ```
 
 ## Kuhn poker
