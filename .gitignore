@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# venv
+.venv/
+venv/
+
+# Tests
+.pytest_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# local drafts
+experiments/
