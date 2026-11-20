@@ -22,7 +22,7 @@ class RegretMatcher:
     def __init__(self, n_actions: int, rng: np.random.Generator,
                  initial_regrets: np.ndarray | None = None):
         self.n_actions = n_actions
-        self.regret_sum = np.zeros(n_actions) if initial_regrets is None else initial_regrets
+        self.regret_sum = np.zeros(n_actions) if initial_regrets is None else np.array(initial_regrets, dtype=float)
         self.strategy_sum = np.zeros(n_actions)
         self.rng = rng
 

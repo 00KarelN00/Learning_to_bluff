@@ -75,6 +75,65 @@ class ChanceSamplingCFRTrainer:
         return values
     
 
+class CFRTrainer:
+    def __init__(self, game: KuhnGame, rng):
+        self.game = game
+        self.nodes: dict[str, InfoSetNode] = {}
+        self.rng = rng
+
+    def get_node(self, key: str) -> InfoSetNode:
+        """Renvoie le nœud, en le créant au premier passage."""
+        if not key in self.nodes.keys():
+            self.nodes[key] = InfoSetNode(key, len(self.game.ACTIONS), self.rng)
+        return self.nodes[key]
+
+     
+
+    def cfr(self, cards, history: str, reach0: float, reach1: float) -> float:
+        """Utilité espérée pour le joueur 0 depuis ce nœud.
+        Met à jour regrets et stratégies du nœud au passage."""
+        if self.game.is_terminal(history):
+            return self.game.payoff(cards, history)
+        else: 
+            player = self.game.current_player(history)
+            key = self.game.infoset_key(cards, history)
+            agent = self.get_node(key)
+            strategy = agent.get_strategy()
+            if player ==0:
+                sons_values = np.array([self.cfr(cards, (history + action), reach0*strategy[i], reach1) for i, action in enumerate(self.game.ACTIONS)])
+                current_value = sons_values @ strategy
+                regret = sons_values - current_value
+                agent.update(regret, reach0, reach1)
+                
+            else:
+                sons_values = np.array([self.cfr(cards, (history + action), reach0, reach1*strategy[i]) for i, action in enumerate(self.game.ACTIONS)])
+                current_value = sons_values @ strategy
+                regret = -(sons_values - current_value)
+                agent.update(regret, reach1, reach0)
+            return current_value
+
+        
+    def train(self, n_iter: int, n_freq) -> list[float]:
+        """À chaque itération : cfr sur les 6 donnes, chacune pondérée par 1/6.
+        Renvoie la valeur du jeu pour le joueur 0 à chaque itération."""
+        values_in_time = []
+        for i in range(n_iter):
+            current_game_value = 0
+            for cards in self.game.deals():
+                current_game_value += self.cfr(cards, "", 1,1)
+            if (i+1)%n_freq ==0:
+                values_in_time.append(current_game_value/6)
+        return values_in_time
+    
+        
+
+    def average_strategy(self) -> dict[str, np.ndarray]: 
+        res = {}
+        for key, agent in self.nodes.items():
+            res[key]=agent.average_strategy()
+        return res 
+
+
         
 
 
