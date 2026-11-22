@@ -11,16 +11,24 @@ imperfect information games. Started with rock-paper-scissors, now Kuhn poker.
 
 - **Rock-paper-scissors + regret matching**: the agent exploits a fixed opponent,
   and in self-play the average strategy converges to (1/3, 1/3, 1/3).
-- **Kuhn poker + chance sampling CFR**: game value converges to -1/18 and the
-  strategies match the known equilibrium (queen bluffs, ace bets 3*alpha, etc.).
+- **Kuhn poker + CFR** (vanilla and chance sampling): game value converges to -1/18,
+  the exploitability of the average strategy goes to 0, and the strategies match the
+  known equilibrium (queen bluffs, ace bets 3*alpha, etc.,
+  see [figures/kuhn_strategy.md](figures/kuhn_strategy.md)).
+
+![cfr comparison](figures/cfr_comparison.png)
 
 ```
 games/      rps.py, kuhn.py (rules, payoffs, infoset keys)
 agents/     regret_matching.py (RegretMatcher, FixedAgent, InfoSetNode)
-training/   rps_training.py, cfr_training.py
+training/   rps_training.py, cfr_training.py, evaluation.py (exploitability)
+evaluation/ exploitability via best response
 tests/      pytest tests (game rules + convergence)
+experiments/
+  convergence.py   -> figures/convergence.png
+  compare_cfr.py   -> figures/cfr_comparison.png, figures/kuhn_strategy.md
+  results.ipynb    runs both and shows the figures
 figures/    plots
-plot_convergence.py   makes figures/convergence.png
 ```
 
 ## Setup
@@ -47,11 +55,16 @@ strategy for each infoset:
 python -m pytest tests/test_chance_sampling_cfr.py -s
 ```
 
-## Plot
+## Figures
+
+From the repo root:
 
 ```bash
-python plot_convergence.py
+python experiments/convergence.py
+python experiments/compare_cfr.py [--deals 120000] [--seeds 3]
 ```
+
+Or open `experiments/results.ipynb` and run all cells (a few minutes).
 
 ## Kuhn poker
 

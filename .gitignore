@@ -13,4 +13,4 @@ venv/
 .ipynb_checkpoints/
 
 # local drafts
-experiments/
+drafts/
