@@ -1,6 +1,6 @@
 import numpy as np
 from games.kuhn import KuhnGame
-from agents.regret_matching import InfoSetNode
+from agents.regret_matching import InfoSetNode, FixedAgent
 
 
 class ChanceSamplingCFRTrainer:
@@ -134,6 +134,39 @@ class CFRTrainer:
         return res 
 
 
-        
+class RestrictedNashTrainer(CFRTrainer):
+    def __init__(self, game: KuhnGame, rng, p: float, fixed: dict[str, np.ndarray], fixed_player: int = 1):
+        super().__init__(game, rng)
+        self.p = p
+        self.fixed = fixed
+        self.fixed_player = fixed_player
+        self.in_fixed_pass = False
+
+    def get_node(self, key: str):
+        """During the fixed pass, the opponent's nodes play `fixed` and never learn."""
+        player = self.game.current_player(key[1:])
+        if self.in_fixed_pass and player == self.fixed_player:
+            return FixedAgent(self.fixed[key], self.rng)
+        else:
+            return super().get_node(key)
+
+    def train(self, n_iter: int, n_freq) -> list[float]:
+        """À chaque itération : pour chaque donne, un cfr où l'adversaire est fixe (reach p)
+        et un cfr où il s'adapte (reach 1-p)."""
+        values_in_time = []
+        for i in range(n_iter):
+            current_game_value = 0
+            for cards in self.game.deals():
+                for fixed_pass, weight in [(True, self.p), (False, 1 - self.p)]:
+                    self.in_fixed_pass = fixed_pass
+                    if self.fixed_player == 1:
+                        value = self.cfr(cards, "", 1, weight)
+                    else:
+                        value = self.cfr(cards, "", weight, 1)
+                    current_game_value += weight*value
+            if (i+1)%n_freq ==0:
+                values_in_time.append(current_game_value/6)
+        self.in_fixed_pass = False
+        return values_in_time 
 
 

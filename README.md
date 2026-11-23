@@ -18,6 +18,14 @@ imperfect information games. Started with rock-paper-scissors, now Kuhn poker.
 
 ![cfr comparison](figures/cfr_comparison.png)
 
+- **Restricted Nash Response**: against a biased opponent, player 0 trains against a mix
+  "biased opponent with probability p, adaptive opponent with probability 1 - p".
+  Sweeping p traces the trade-off between gain against that opponent and exploitability;
+  RNR gets most of the best response's gain for a fraction of its exploitability, and beats
+  the naive mix of Nash and best response.
+
+![rnr](figures/rnr.png)
+
 ```
 games/      rps.py, kuhn.py (rules, payoffs, infoset keys)
 agents/     regret_matching.py (RegretMatcher, FixedAgent, InfoSetNode)
@@ -27,7 +35,8 @@ tests/      pytest tests (game rules + convergence)
 experiments/
   convergence.py   -> figures/convergence.png
   compare_cfr.py   -> figures/cfr_comparison.png, figures/kuhn_strategy.md
-  results.ipynb    runs both and shows the figures
+  rnr.py           -> figures/rnr.png
+  results.ipynb    runs all three and shows the figures
 figures/    plots
 ```
 
@@ -62,6 +71,7 @@ From the repo root:
 ```bash
 python experiments/convergence.py
 python experiments/compare_cfr.py [--deals 120000] [--seeds 3]
+python experiments/rnr.py
 ```
 
 Or open `experiments/results.ipynb` and run all cells (a few minutes).
